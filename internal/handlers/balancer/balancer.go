@@ -18,13 +18,12 @@ type RateLimiter interface {
 	Stop()
 	Check(client string) bool
 	CheckAndAddDefault(client string) (bool, *models.BucketConfig)
-	AddClient(client string, m models.BucketConfig) 
+	AddClient(client string, m models.BucketConfig)
 }
 
 type Database interface {
 	AddClient(ctx context.Context, m *models.Client) error
 }
-
 
 // All fields must be filled in
 type LoadBalancerHandler struct {
@@ -59,6 +58,12 @@ func (lb *LoadBalancerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 			RatePerInterval: config.RefillRate,
 		})
 		if err != nil {
+			lb.Logger.WithFields(logrus.Fields{
+				"error": err.Error(),
+				"time":  time.Now().Format(time.RFC3339),
+				"unix":  time.Now().Unix(),
+				"addr":  r.RemoteAddr,
+			}).Warn()
 			render.SendError(w, http.StatusInternalServerError, &render.ErrorResponse{
 				Error: ErrDatabase.Error(),
 				Time:  time.Now().Format(time.RFC3339),

@@ -32,7 +32,14 @@ func loadBalancerServer() {
 		logger.Fatal(err)
 	}
 
-	db, err := database.NewPostgres(config.DatabaseURL)
+	db, err := database.NewPostgres(&database.ConfigDB{
+		Host:     config.Database.Host,
+		Port:     config.Database.Port,
+		User:     config.Database.User,
+		Password: config.Database.Password,
+		NameDB:   config.Database.NameDB,
+		SSL:      config.Database.SSL,
+	})
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -64,7 +71,7 @@ func loadBalancerServer() {
 		Addr:    ":" + config.LoadBalancerPort,
 		Handler: lb,
 	}
-
+	// --------- GRACEFULL SHUTDOWN
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		c := make(chan os.Signal, 1)
@@ -92,7 +99,7 @@ func loadBalancerServer() {
 		server.Shutdown(context.Background())
 		serverAPI.Shutdown(context.Background())
 	}()
-	fmt.Printf("LoadBalancer started on %s port \n API started on %s port", config.LoadBalancerPort, config.APIport)
+	fmt.Printf("LoadBalancer started on %s port | API started on %s port", config.LoadBalancerPort, config.APIport)
 	wg.Wait()
 	// ---------
 }

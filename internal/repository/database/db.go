@@ -1,8 +1,9 @@
 package database
 
-
 import (
-	"gorm.io/driver/mysql"
+	"fmt"
+
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -10,9 +11,21 @@ type Database struct {
 	db *gorm.DB
 }
 
-func NewPostgres(url string) (*Database, error) {
+type ConfigDB struct {
+	Host     string
+	User     string
+	Password string
+	NameDB   string
+	Port     string
+	SSL      string
+}
 
-	return connect(mysql.Open(url))
+func NewPostgres(c *ConfigDB) (*Database, error) {
+	dsn := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		c.Host, c.Port, c.User, c.Password, c.NameDB, c.SSL,
+	)
+	return connect(postgres.Open(dsn))
 }
 
 func connect(d gorm.Dialector) (*Database, error) {

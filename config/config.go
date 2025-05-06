@@ -7,14 +7,23 @@ import (
 )
 
 type Backends struct {
-	Endpoints      []string      `yaml:"endpoints"`
-	HealthInterval int `yaml:"health-interval"`
+	Endpoints      []string `yaml:"endpoints"`
+	HealthInterval int      `yaml:"health-interval"`
 }
 
 type RateLimiter struct {
 	DefaultInterval   int `yaml:"default-interval"`
-	DefaultCapacity   int           `yaml:"default-capacity"`
-	DefaultRefillRate int           `yaml:"default-refill-rate"`
+	DefaultCapacity   int `yaml:"default-capacity"`
+	DefaultRefillRate int `yaml:"default-refill-rate"`
+}
+
+type Database struct {
+	Host     string `yaml:"host"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	NameDB   string `yaml:"name_db"`
+	Port     string `yaml:"port"`
+	SSL      string `yaml:"ssl"`
 }
 
 type Config struct {
@@ -22,7 +31,7 @@ type Config struct {
 	APIport          string      `yaml:"api-port"`
 	Backends         Backends    `yaml:"backends"`
 	RateLimiter      RateLimiter `yaml:"rate-limiter"`
-	DatabaseURL      string      `yaml:"database"`
+	Database         Database    `yaml:"database"`
 }
 
 func NewConfig() *Config {

@@ -63,6 +63,7 @@ func NewRateLimiter(c LimiterConfig) *RateLimiter {
 		ticker:  time.NewTicker(c.DefaultInterval),
 		quit:    make(chan struct{}),
 		config:  &c,
+		mu:      sync.RWMutex{},
 	}
 	go limiter.refillWorker()
 
@@ -114,13 +115,16 @@ func (rl *RateLimiter) CheckAndAddDefault(client string) (bool, *models.BucketCo
 	var m models.BucketConfig
 	bucket, ok := rl.buckets[client]
 	if !ok {
+		bucket = &Bucket{}
 		bucket.capacity = rl.config.DefaultCapacity
 		bucket.refillRate = rl.config.DefaultRefillRate
 		bucket.tokens = rl.config.DefaultCapacity
 
 		rl.buckets[client] = bucket
-		copier.Copy(&m, &bucket)
+
 	}
+	copier.Copy(&m, &bucket)
+
 	return ok, &m
 }
 
@@ -133,12 +137,15 @@ func (rl *RateLimiter) GetDefaultLimits() {
 func (rl *RateLimiter) Allow(client string) bool {
 	var bucket = &Bucket{}
 	rl.mu.Lock()
-	if bucket, exists := rl.buckets[client]; !exists {
-		bucket.capacity = rl.config.DefaultCapacity
-		bucket.refillRate = rl.config.DefaultRefillRate
-		bucket.tokens = rl.config.DefaultCapacity
+	bucket, exists := rl.buckets[client]
+	if !exists {
+		b := &Bucket{}
+		b.capacity = rl.config.DefaultCapacity
+		b.refillRate = rl.config.DefaultRefillRate
+		b.tokens = rl.config.DefaultCapacity
 
-		rl.buckets[client] = bucket
+		rl.buckets[client] = b
+		bucket = b
 	}
 	rl.mu.Unlock()
 

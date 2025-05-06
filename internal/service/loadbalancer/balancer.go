@@ -51,7 +51,7 @@ func NewLoadBalancer(backendAddrs []string, strat Strategy, interval time.Durati
 	if len(backendAddrs) == 0 {
 		return &Balancer{}, ErrNoBackends
 	}
-	var bks []*Backend
+	var bks = []*Backend{}
 	for _, addr := range backendAddrs {
 		u, err := url.Parse(addr)
 		if err != nil {
@@ -59,7 +59,7 @@ func NewLoadBalancer(backendAddrs []string, strat Strategy, interval time.Durati
 		}
 		bks = append(bks, &Backend{URL: u, Healthy: false})
 	}
-	b := &Balancer{backends: bks, strategy: strat, interval: interval}
+	b := &Balancer{backends: bks, strategy: strat, interval: interval, mu: sync.RWMutex{}}
 	go b.startHealthChecks()
 	return b, nil
 }
