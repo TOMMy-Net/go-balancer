@@ -43,7 +43,6 @@ services:
     volumes:
       - balancer:/app
 
-  
 
 volumes:
   pg_admin:

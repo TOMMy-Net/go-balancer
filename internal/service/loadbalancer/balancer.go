@@ -81,7 +81,7 @@ func (b *Balancer) startHealthChecks() {
 			wg.Add(1)
 			go func(be *Backend) {
 				defer wg.Done()
-				httpClient := http.Client{Timeout: 2 * time.Second}
+				httpClient := http.Client{Timeout: 5 * time.Second}
 				resp, err := httpClient.Get(be.URL.String())
 				healthy := err == nil && resp.StatusCode < 500
 				if resp != nil {

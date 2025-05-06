@@ -51,7 +51,6 @@ func NewLoadBalancerHandler(logger *logrus.Logger, backends []string, rl RateLim
 func (lb *LoadBalancerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ok, config := lb.RateLimiter.CheckAndAddDefault(r.RemoteAddr)
 	if !ok {
-
 		err := lb.DB.AddClient(r.Context(), &models.Client{
 			IP:              r.RemoteAddr,
 			Capacity:        config.Capacity,
