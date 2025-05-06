@@ -1,0 +1,54 @@
+services:
+  pg_db:
+    container_name: postgres_container
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: loadbalancer
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 770948
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg:/var/lib/postgresql/data
+    networks:
+      - my-net
+  
+  pg_admin4:
+    container_name: pgadmin
+    image: dpage/pgadmin4:7.2
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "user@user.com"
+      PGADMIN_DEFAULT_PASSWORD: "pgadminpwd4"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pg_admin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+    networks:
+      - my-net
+  
+  load-balancer:
+    container_name: load_balancer
+    build: ./
+    restart: always
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    depends_on:
+      - pg_db
+    networks:
+      - my-net
+    volumes:
+      - balancer:/app
+
+volumes:
+  pg_admin:
+  pg:
+  balancer:
+
+networks:
+  my-net:
+    driver: bridge
+  
