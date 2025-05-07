@@ -57,7 +57,7 @@ func NewLoadBalancer(backendAddrs []string, strat Strategy, interval time.Durati
 		if err != nil {
 			return &Balancer{}, err
 		}
-		bks = append(bks, &Backend{URL: u, Healthy: false})
+		bks = append(bks, &Backend{URL: u, Healthy: false, mu: sync.RWMutex{}})
 	}
 	b := &Balancer{backends: bks, strategy: strat, interval: interval, mu: sync.RWMutex{}}
 	go b.startHealthChecks()

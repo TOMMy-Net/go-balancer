@@ -51,7 +51,7 @@ func loadBalancerServer() {
 		DefaultRefillRate: config.RateLimiter.DefaultRefillRate,
 	})
 
-	lb, err := balancer.NewLoadBalancerHandler(logger, backendAddrs, rateLimiter, time.Duration(config.Backends.HealthInterval))
+	lb, err := balancer.NewLoadBalancerHandler(logger, backendAddrs, rateLimiter, time.Duration(config.Backends.HealthInterval)*time.Second)
 	if err != nil {
 		logger.WithFields(logrus.Fields{
 			"error": err.Error(),
